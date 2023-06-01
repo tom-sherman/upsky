@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1685655174500,
+      "tag": "0000_foamy_stardust",
+      "breakpoints": false
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1685656681966,
+      "tag": "0001_thankful_black_cat",
+      "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1685657651743,
+      "tag": "0002_ambitious_masked_marvel",
+      "breakpoints": false
+    }
+  ]
+}
