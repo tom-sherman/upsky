@@ -1,1 +1,0 @@
-ALTER TABLE "session" ALTER COLUMN "data" DROP DEFAULT;
