@@ -1,7 +1,8 @@
+import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 
-const sessionSchema = z.object({
+const atpSessionDataSchema = z.object({
   refreshJwt: z.string(),
   accessJwt: z.string(),
   handle: z.string(),
@@ -9,7 +10,14 @@ const sessionSchema = z.object({
   email: z.string().optional(),
 });
 
-export function parseSessionCookie(cookies: NextRequest["cookies"]) {
+const sessionSchema = z.object({
+  atp: atpSessionDataSchema,
+  service: z.string(),
+});
+
+export function parseSessionCookie(
+  cookies: Pick<NextRequest["cookies"], "get">
+) {
   const sessionCookie = cookies.get("bsky-session");
   if (!sessionCookie) {
     return null;
@@ -22,4 +30,11 @@ export function parseSessionCookie(cookies: NextRequest["cookies"]) {
   }
 
   return parsed.data;
+}
+
+export function setSessionCookie(session: z.infer<typeof sessionSchema>) {
+  cookies().set("bsky-session", btoa(JSON.stringify(session)), {
+    httpOnly: true,
+    sameSite: "lax",
+  });
 }
