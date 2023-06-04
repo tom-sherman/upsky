@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import "./styles.css";
 
 interface TimelineProps {
   initialChunk: React.ReactNode[];
