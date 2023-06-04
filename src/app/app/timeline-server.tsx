@@ -26,22 +26,15 @@ async function getTimeline(cursor?: string, limit?: number) {
   return data;
 }
 
-interface TimelineItemsProps {
-  cursor?: string;
-  limit?: number;
-}
-
-export async function TimelineItems({ cursor, limit }: TimelineItemsProps) {
-  const { feed } = await getTimeline(cursor, limit);
-
-  return renderFeed(feed);
-}
-
-function renderFeed(feed: FeedViewPost[]) {
-  return feed.map((item) => (
-    <div key={item.post.cid}>
+function TimelineItem({ item }: { item: FeedViewPost }) {
+  return (
+    <div>
       <strong>{item.post.author.displayName}</strong>
       <p>{(item.post.record as any).text}</p>
     </div>
-  ));
+  );
+}
+
+function renderFeed(feed: FeedViewPost[]) {
+  return feed.map((item) => <TimelineItem key={item.post.cid} item={item} />);
 }
