@@ -65,5 +65,5 @@ async function loginAction(formData: FormData) {
     atp: result.data,
     service: form.service,
   });
-  redirect("/app");
+  redirect("/home");
 }
