@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useEffect, useState } from "react";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 
 interface TimelineProps {
   initialChunk: React.ReactNode[];
@@ -22,13 +22,14 @@ export function Timeline({
   const [cursor, setCursor] = useState<string | undefined>(initialCursor);
   const [isLoading, setIsLoading] = useState(false);
   const hasNextPage = !!cursor;
-  const parentRef = useRef(null);
 
-  const rowVirtualizer = useVirtualizer({
+  const rowVirtualizer = useWindowVirtualizer({
     count: hasNextPage ? itemsLength + 1 : itemsLength,
-    getScrollElement: () => parentRef.current,
+    getScrollElement: () => window,
     estimateSize: () => 100,
     overscan: 10,
+    // FIXME: Kind of a hacky magic number to account for the header
+    paddingStart: 150,
   });
 
   const lastItemIndex = [...rowVirtualizer.getVirtualItems()].reverse()[0]
@@ -39,12 +40,6 @@ export function Timeline({
       return;
     }
 
-    console.log({
-      "lastItem.index": lastItemIndex,
-      "items.length": items.length,
-      hasNextPage: hasNextPage,
-      isLoading: isLoading,
-    });
     if (lastItemIndex >= items.length - 1 && hasNextPage && !isLoading) {
       setIsLoading(true);
       loadMoreAction(cursor)
@@ -66,53 +61,37 @@ export function Timeline({
   ]);
 
   return (
-    <div
-      ref={parentRef}
-      className="List"
-      style={{
-        height: `500px`,
-        width: `100%`,
-        overflow: "auto",
-      }}
-    >
-      <div
-        style={{
-          height: `${rowVirtualizer.getTotalSize()}px`,
-          width: "100%",
-          position: "relative",
-        }}
-      >
-        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-          const isLoaderRow = virtualRow.index > itemsLength - 1;
-          const item = items[virtualRow.index];
+    <div style={{ height: "100%" }}>
+      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+        const isLoaderRow = virtualRow.index > itemsLength - 1;
+        const item = items[virtualRow.index];
 
-          return (
-            <div
-              key={virtualRow.key}
-              data-index={virtualRow.index}
-              className={virtualRow.index % 2 ? "ListItemOdd" : "ListItemEven"}
-              ref={rowVirtualizer.measureElement}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              {isLoaderRow ? (
-                hasNextPage ? (
-                  "Loading more..."
-                ) : (
-                  "Nothing more to load"
-                )
+        return (
+          <div
+            key={virtualRow.key}
+            data-index={virtualRow.index}
+            className={virtualRow.index % 2 ? "ListItemOdd" : "ListItemEven"}
+            ref={rowVirtualizer.measureElement}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              transform: `translateY(${virtualRow.start}px)`,
+            }}
+          >
+            {isLoaderRow ? (
+              hasNextPage ? (
+                "Loading more..."
               ) : (
-                <div>{item}</div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                "Nothing more to load"
+              )
+            ) : (
+              <div>{item}</div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
