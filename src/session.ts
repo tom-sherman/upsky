@@ -38,3 +38,7 @@ export function setSessionCookie(session: z.infer<typeof sessionSchema>) {
     sameSite: "lax",
   });
 }
+
+export function deleteSessionCookie() {
+  cookies().delete("bsky-session");
+}
