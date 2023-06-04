@@ -24,7 +24,6 @@ export function Timeline({
   const [isLoading, setIsLoading] = useState(false);
   const hasNextPage = !!cursor;
   const parentRef = useRef(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
     count: hasNextPage ? itemsLength + 1 : itemsLength,
@@ -33,49 +32,40 @@ export function Timeline({
     overscan: 5,
   });
 
+  const lastItemIndex = [...rowVirtualizer.getVirtualItems()].reverse()[0]
+    .index;
+
   useEffect(() => {
-    const abortController = new AbortController();
-    const observer = new IntersectionObserver(([entry]) => {
-      console.log({
-        "entry.isIntersecting": entry.isIntersecting,
-        hasNextPage,
-        "element?.getAttribute('data-disabled')":
-          loadMoreRef.current?.getAttribute("data-disabled"),
-      });
-      if (
-        entry.isIntersecting &&
-        hasNextPage &&
-        loadMoreRef.current?.getAttribute("data-disabled") !== "true"
-      ) {
-        setIsLoading(true);
-        loadMoreAction(cursor)
-          .then(({ chunk, cursor }) => {
-            if (abortController.signal.aborted) {
-              return;
-            }
-
-            setItems((items) => [...items, ...chunk]);
-            setCursor(cursor);
-          })
-          .finally(() => {
-            setIsLoading(false);
-          });
-      }
-    });
-
-    const element = loadMoreRef.current;
-
-    if (element) {
-      observer.observe(element);
+    if (!lastItemIndex) {
+      return;
     }
 
-    return () => {
-      abortController.abort();
-      if (element) {
-        observer.unobserve(element);
-      }
-    };
-  });
+    console.log({
+      "lastItem.index": lastItemIndex,
+      "items.length": items.length,
+      hasNextPage: hasNextPage,
+      isLoading: isLoading,
+    });
+    if (lastItemIndex >= items.length - 1 && hasNextPage && !isLoading) {
+      setIsLoading(true);
+      loadMoreAction(cursor)
+        .then(({ cursor, chunk }) => {
+          console.log("SET STATE");
+          setCursor(cursor);
+          setItems((items) => [...items, ...chunk]);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [
+    cursor,
+    hasNextPage,
+    isLoading,
+    items.length,
+    loadMoreAction,
+    lastItemIndex,
+  ]);
 
   return (
     <div
@@ -112,12 +102,11 @@ export function Timeline({
               }}
             >
               {isLoaderRow ? (
-                <div
-                  ref={loadMoreRef}
-                  data-disabled={isLoading || !hasNextPage}
-                >
-                  {hasNextPage ? "Loading more..." : "Nothing more to load"}
-                </div>
+                hasNextPage ? (
+                  "Loading more..."
+                ) : (
+                  "Nothing more to load"
+                )
               ) : (
                 <div>{item}</div>
               )}
