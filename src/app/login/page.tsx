@@ -8,6 +8,20 @@ export default function LoginPage() {
     <>
       <h1>Login</h1>
       <Form />
+      <p>
+        It&apos;s strongly recommended that you use an app password and not your
+        general BlueSky password.
+      </p>
+      <p>
+        <a
+          href="https://bsky.app/settings/app-passwords"
+          target="_blank"
+          rel="nofollow noreferrer"
+        >
+          Click here
+        </a>{" "}
+        to create one.
+      </p>
     </>
   );
 }
