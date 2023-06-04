@@ -41,7 +41,7 @@ function renderFeed(feed: FeedViewPost[]) {
   return feed.map((item) => (
     <div key={item.post.cid}>
       <strong>{item.post.author.displayName}</strong>
-      <p>{item.post.record.text}</p>
+      <p>{(item.post.record as any).text}</p>
     </div>
   ));
 }
