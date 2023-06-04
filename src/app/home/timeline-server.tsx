@@ -1,10 +1,5 @@
-import type { BskyAgent } from "@atproto/api";
+import type { AppBskyFeedDefs } from "@atproto/api";
 import { getAgent } from "../agent";
-
-// Gotta do this because @atproto/api doesn't export this type
-type FeedViewPost = Awaited<
-  ReturnType<BskyAgent["getTimeline"]>
->["data"]["feed"][number];
 
 export async function loadMore(cursor?: string) {
   "use server";
@@ -26,7 +21,7 @@ async function getTimeline(cursor?: string, limit?: number) {
   return data;
 }
 
-function TimelineItem({ item }: { item: FeedViewPost }) {
+function TimelineItem({ item }: { item: AppBskyFeedDefs.FeedViewPost }) {
   return (
     <div>
       <strong>{item.post.author.displayName}</strong>
@@ -35,6 +30,6 @@ function TimelineItem({ item }: { item: FeedViewPost }) {
   );
 }
 
-function renderFeed(feed: FeedViewPost[]) {
+function renderFeed(feed: AppBskyFeedDefs.FeedViewPost[]) {
   return feed.map((item) => <TimelineItem key={item.post.cid} item={item} />);
 }
