@@ -29,7 +29,7 @@ export function Timeline({
     count: hasNextPage ? itemsLength + 1 : itemsLength,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 100,
-    overscan: 5,
+    overscan: 10,
   });
 
   const lastItemIndex = [...rowVirtualizer.getVirtualItems()].reverse()[0]
@@ -50,7 +50,6 @@ export function Timeline({
       setIsLoading(true);
       loadMoreAction(cursor)
         .then(({ cursor, chunk }) => {
-          console.log("SET STATE");
           setCursor(cursor);
           setItems((items) => [...items, ...chunk]);
         })
@@ -90,14 +89,15 @@ export function Timeline({
 
           return (
             <div
-              key={virtualRow.index}
+              key={virtualRow.key}
+              data-index={virtualRow.index}
               className={virtualRow.index % 2 ? "ListItemOdd" : "ListItemEven"}
+              ref={rowVirtualizer.measureElement}
               style={{
                 position: "absolute",
                 top: 0,
                 left: 0,
                 width: "100%",
-                height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
